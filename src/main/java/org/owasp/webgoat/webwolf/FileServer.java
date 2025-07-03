@@ -68,7 +68,7 @@ public class FileServer {
       throws IOException {
     var username = authentication.getName();
     var destinationDir = new File(fileLocation, username);
-    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath())) {
+    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath() + File.separator)) {
         throw new IOException("Invalid username");
     }
     destinationDir.mkdirs();
@@ -76,7 +76,7 @@ public class FileServer {
     // https://stackoverflow.com/questions/60336929/java-nio-file-nosuchfileexception-when-file-transferto-is-called
     try (InputStream is = multipartFile.getInputStream()) {
       var destinationFile = destinationDir.toPath().resolve(multipartFile.getOriginalFilename());
-      if (!destinationFile.toFile().getCanonicalPath().startsWith(destinationDir.getCanonicalPath())) {
+      if (!destinationFile.toFile().getCanonicalPath().startsWith(destinationDir.getCanonicalPath() + File.separator)) {
         throw new IOException("File is outside of the target directory");
       }
       Files.deleteIfExists(destinationFile);
@@ -94,7 +94,7 @@ public class FileServer {
       HttpServletRequest request, Authentication authentication, TimeZone timezone) throws IOException {
     String username = (null != authentication) ? authentication.getName() : "anonymous";
     File destinationDir = new File(fileLocation, username);
-    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath())) {
+    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath() + File.separator)) {
         throw new IOException("Invalid username");
     }
     if (!destinationDir.exists()) {
@@ -116,7 +116,7 @@ public class FileServer {
     if (files != null) {
       for (File file : files) {
         try {
-          if (!file.getCanonicalPath().startsWith(destinationDir.getCanonicalPath())) {
+          if (!file.getCanonicalPath().startsWith(destinationDir.getCanonicalPath() + File.separator)) {
             continue;
           }
           String size = FileUtils.byteCountToDisplaySize(file.length());

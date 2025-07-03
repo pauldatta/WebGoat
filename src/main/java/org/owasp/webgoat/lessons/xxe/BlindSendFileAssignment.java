@@ -55,14 +55,14 @@ public class BlindSendFileAssignment implements AssignmentEndpoint, Initializabl
     userToFileContents.put(user, fileContents);
     File targetDirectory = new File(webGoatHomeDirectory, "/XXE/" + user.getUsername());
     try {
-        if (!targetDirectory.getCanonicalPath().startsWith(new File(webGoatHomeDirectory).getCanonicalPath())) {
+        if (!targetDirectory.getCanonicalPath().startsWith(new File(webGoatHomeDirectory).getCanonicalPath() + File.separator)) {
             throw new IOException("Invalid username");
         }
         if (!targetDirectory.exists()) {
             targetDirectory.mkdirs();
         }
       File secretFile = new File(targetDirectory, "secret.txt");
-      if (!secretFile.getCanonicalPath().startsWith(targetDirectory.getCanonicalPath())) {
+      if (!secretFile.getCanonicalPath().startsWith(targetDirectory.getCanonicalPath() + File.separator)) {
         log.error("Path traversal attempt for user {}", user.getUsername());
         return;
       }

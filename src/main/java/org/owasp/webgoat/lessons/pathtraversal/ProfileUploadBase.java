@@ -49,7 +49,7 @@ public class ProfileUploadBase implements AssignmentEndpoint {
 
     try {
       var uploadedFile = new File(uploadDirectory, fullName);
-      if (!uploadedFile.getCanonicalPath().startsWith(uploadDirectory.getCanonicalPath())) {
+      if (!uploadedFile.getCanonicalPath().startsWith(uploadDirectory.getCanonicalPath() + File.separator)) {
         return failed(this).output("File is outside of the target directory").build();
       }
       uploadedFile.createNewFile();
@@ -71,7 +71,7 @@ public class ProfileUploadBase implements AssignmentEndpoint {
   @SneakyThrows
   protected File cleanupAndCreateDirectoryForUser(String username) {
     var uploadDirectory = new File(this.webGoatHomeDirectory, "/PathTraversal/" + username);
-    if (!uploadDirectory.getCanonicalPath().startsWith(new File(this.webGoatHomeDirectory).getCanonicalPath())) {
+    if (!uploadDirectory.getCanonicalPath().startsWith(new File(this.webGoatHomeDirectory).getCanonicalPath() + File.separator)) {
         throw new IOException("Invalid username");
     }
     if (uploadDirectory.exists()) {
@@ -111,7 +111,7 @@ public class ProfileUploadBase implements AssignmentEndpoint {
       return defaultImage();
     }
     try {
-        if (!profilePictureDirectory.getCanonicalPath().startsWith(new File(this.webGoatHomeDirectory).getCanonicalPath())) {
+        if (!profilePictureDirectory.getCanonicalPath().startsWith(new File(this.webGoatHomeDirectory).getCanonicalPath() + File.separator)) {
             return defaultImage();
         }
     } catch (IOException e) {
@@ -127,7 +127,7 @@ public class ProfileUploadBase implements AssignmentEndpoint {
               file -> {
                 try (var inputStream = new FileInputStream(file)) {
                   if (!file.getCanonicalPath()
-                      .startsWith(profilePictureDirectory.getCanonicalPath())) {
+                      .startsWith(profilePictureDirectory.getCanonicalPath() + File.separator)) {
                     return defaultImage();
                   }
                   return Base64.getEncoder().encode(FileCopyUtils.copyToByteArray(inputStream));
