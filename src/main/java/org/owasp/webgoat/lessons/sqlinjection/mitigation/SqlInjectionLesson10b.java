@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -45,7 +45,7 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
     try {
       if (editor.isEmpty()) return failed(this).feedback("sql-injection.10b.no-code").build();
 
-      editor = editor.replaceAll("<[^>]*>", "");
+      editor = editor.replaceAll("<.*?>", "");
 
       String regexSetsUpConnection = ".*getConnection.*";
       String regexUsesPreparedStatement = ".*PreparedStatement.*";
@@ -133,7 +133,6 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
   private boolean check_text(String regex, String text) {
     Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(text);
-    if (m.find()) return true;
-    else return false;
+    return m.find();
   }
 }
