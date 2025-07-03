@@ -54,10 +54,13 @@ public class BlindSendFileAssignment implements AssignmentEndpoint, Initializabl
     var fileContents = "WebGoat 8.0 rocks... (" + randomAlphabetic(10) + ")";
     userToFileContents.put(user, fileContents);
     File targetDirectory = new File(webGoatHomeDirectory, "/XXE/" + user.getUsername());
-    if (!targetDirectory.exists()) {
-      targetDirectory.mkdirs();
-    }
     try {
+        if (!targetDirectory.getCanonicalPath().startsWith(new File(webGoatHomeDirectory).getCanonicalPath())) {
+            throw new IOException("Invalid username");
+        }
+        if (!targetDirectory.exists()) {
+            targetDirectory.mkdirs();
+        }
       File secretFile = new File(targetDirectory, "secret.txt");
       if (!secretFile.getCanonicalPath().startsWith(targetDirectory.getCanonicalPath())) {
         log.error("Path traversal attempt for user {}", user.getUsername());

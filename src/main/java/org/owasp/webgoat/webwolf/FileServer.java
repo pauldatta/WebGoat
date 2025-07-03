@@ -68,6 +68,9 @@ public class FileServer {
       throws IOException {
     var username = authentication.getName();
     var destinationDir = new File(fileLocation, username);
+    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath())) {
+        throw new IOException("Invalid username");
+    }
     destinationDir.mkdirs();
     // DO NOT use multipartFile.transferTo(), see
     // https://stackoverflow.com/questions/60336929/java-nio-file-nosuchfileexception-when-file-transferto-is-called
@@ -88,9 +91,12 @@ public class FileServer {
 
   @GetMapping(value = "/files")
   public ModelAndView getFiles(
-      HttpServletRequest request, Authentication authentication, TimeZone timezone) {
+      HttpServletRequest request, Authentication authentication, TimeZone timezone) throws IOException {
     String username = (null != authentication) ? authentication.getName() : "anonymous";
     File destinationDir = new File(fileLocation, username);
+    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath())) {
+        throw new IOException("Invalid username");
+    }
     if (!destinationDir.exists()) {
       destinationDir.mkdirs();
     }

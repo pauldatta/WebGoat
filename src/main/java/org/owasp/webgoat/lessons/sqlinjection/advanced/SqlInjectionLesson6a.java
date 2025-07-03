@@ -62,7 +62,7 @@ public class SqlInjectionLesson6a implements AssignmentEndpoint {
   }
 
   private boolean unionQueryChecker(String accountName) {
-    return accountName.matches("(?i)[^\\s-/*;)]*\\s*UNION.* ");
+    return accountName.matches("(?i)[^\\s-/*;)]*\\s*UNION.*");
   }
 
   private AttackResult executeSqlInjection(Connection connection, String query, boolean usedUnion) {

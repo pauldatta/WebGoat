@@ -45,7 +45,7 @@ public class WebGoatUser implements UserDetails {
   }
 
   public void validate() {
-    if (username.matches("[\\w]+")) {
+    if (username.matches("[a-zA-Z0-9]+")) {
       return;
     }
     throw new IllegalArgumentException("Username contains illegal characters");
