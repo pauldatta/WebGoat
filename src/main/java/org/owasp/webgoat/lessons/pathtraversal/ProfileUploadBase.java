@@ -110,6 +110,13 @@ public class ProfileUploadBase implements AssignmentEndpoint {
     if (!profilePictureDirectory.exists()) {
       return defaultImage();
     }
+    try {
+        if (!profilePictureDirectory.getCanonicalPath().startsWith(new File(this.webGoatHomeDirectory).getCanonicalPath())) {
+            return defaultImage();
+        }
+    } catch (IOException e) {
+        return defaultImage();
+    }
     var profileDirectoryFiles = profilePictureDirectory.listFiles();
 
     if (profileDirectoryFiles != null && profileDirectoryFiles.length > 0) {
