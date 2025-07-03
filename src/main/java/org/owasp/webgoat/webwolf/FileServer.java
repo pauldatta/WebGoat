@@ -73,6 +73,9 @@ public class FileServer {
     // https://stackoverflow.com/questions/60336929/java-nio-file-nosuchfileexception-when-file-transferto-is-called
     try (InputStream is = multipartFile.getInputStream()) {
       var destinationFile = destinationDir.toPath().resolve(multipartFile.getOriginalFilename());
+      if (!destinationFile.toFile().getCanonicalPath().startsWith(destinationDir.getCanonicalPath())) {
+        throw new IOException("File is outside of the target directory");
+      }
       Files.deleteIfExists(destinationFile);
       Files.copy(is, destinationFile);
     }
@@ -88,6 +91,9 @@ public class FileServer {
       HttpServletRequest request, Authentication authentication, TimeZone timezone) {
     String username = (null != authentication) ? authentication.getName() : "anonymous";
     File destinationDir = new File(fileLocation, username);
+    if (!destinationDir.exists()) {
+      destinationDir.mkdirs();
+    }
 
     ModelAndView modelAndView = new ModelAndView();
     modelAndView.setViewName("files");
@@ -103,10 +109,17 @@ public class FileServer {
     File[] files = destinationDir.listFiles(File::isFile);
     if (files != null) {
       for (File file : files) {
-        String size = FileUtils.byteCountToDisplaySize(file.length());
-        String link = String.format("files/%s/%s", username, file.getName());
-        uploadedFiles.add(
-            new UploadedFile(file.getName(), size, link, getCreationTime(timezone, file)));
+        try {
+          if (!file.getCanonicalPath().startsWith(destinationDir.getCanonicalPath())) {
+            continue;
+          }
+          String size = FileUtils.byteCountToDisplaySize(file.length());
+          String link = String.format("files/%s/%s", username, file.getName());
+          uploadedFiles.add(
+              new UploadedFile(file.getName(), size, link, getCreationTime(timezone, file)));
+        } catch (IOException e) {
+          log.error("Error while getting canonical path for file {}", file.getName());
+        }
       }
     }
 

@@ -58,7 +58,12 @@ public class BlindSendFileAssignment implements AssignmentEndpoint, Initializabl
       targetDirectory.mkdirs();
     }
     try {
-      Files.writeString(new File(targetDirectory, "secret.txt").toPath(), fileContents, UTF_8);
+      File secretFile = new File(targetDirectory, "secret.txt");
+      if (!secretFile.getCanonicalPath().startsWith(targetDirectory.getCanonicalPath())) {
+        log.error("Path traversal attempt for user {}", user.getUsername());
+        return;
+      }
+      Files.writeString(secretFile.toPath(), fileContents, UTF_8);
     } catch (IOException e) {
       log.error("Unable to write 'secret.txt' to '{}", targetDirectory);
     }

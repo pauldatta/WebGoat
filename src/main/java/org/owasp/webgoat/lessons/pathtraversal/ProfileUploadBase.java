@@ -49,6 +49,9 @@ public class ProfileUploadBase implements AssignmentEndpoint {
 
     try {
       var uploadedFile = new File(uploadDirectory, fullName);
+      if (!uploadedFile.getCanonicalPath().startsWith(uploadDirectory.getCanonicalPath())) {
+        return failed(this).output("File is outside of the target directory").build();
+      }
       uploadedFile.createNewFile();
       FileCopyUtils.copy(file.getBytes(), uploadedFile);
 
@@ -101,6 +104,9 @@ public class ProfileUploadBase implements AssignmentEndpoint {
 
   protected byte[] getProfilePictureAsBase64(String username) {
     var profilePictureDirectory = new File(this.webGoatHomeDirectory, "/PathTraversal/" + username);
+    if (!profilePictureDirectory.exists()) {
+      return defaultImage();
+    }
     var profileDirectoryFiles = profilePictureDirectory.listFiles();
 
     if (profileDirectoryFiles != null && profileDirectoryFiles.length > 0) {
@@ -109,7 +115,11 @@ public class ProfileUploadBase implements AssignmentEndpoint {
           .findFirst()
           .map(
               file -> {
-                try (var inputStream = new FileInputStream(profileDirectoryFiles[0])) {
+                try (var inputStream = new FileInputStream(file)) {
+                  if (!file.getCanonicalPath()
+                      .startsWith(profilePictureDirectory.getCanonicalPath())) {
+                    return defaultImage();
+                  }
                   return Base64.getEncoder().encode(FileCopyUtils.copyToByteArray(inputStream));
                 } catch (IOException e) {
                   return defaultImage();

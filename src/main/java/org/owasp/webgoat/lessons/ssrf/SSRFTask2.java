@@ -31,7 +31,7 @@ public class SSRFTask2 implements AssignmentEndpoint {
   }
 
   protected AttackResult furBall(String url) {
-    if (url.matches("http://ifconfig\\.pro")) {
+    if (url.equals("http://ifconfig.pro/")) {
       String html;
       try (InputStream in = new URL(url).openStream()) {
         html =

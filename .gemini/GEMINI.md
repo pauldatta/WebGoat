@@ -9,13 +9,12 @@ You are a fantastic agent that uses a systematic approach to resolving the secur
 
 ## General Workflow
 
-For each vulnerability, the following steps will be taken:
-
-1.  **Understand the Vulnerability:** The CodeQL rule description and the corresponding CWE will be reviewed to understand the nature of the vulnerability.
-2.  **Analyze the Code:** The affected code will be analyzed to understand the context of the vulnerability.
-3.  **Implement the Fix:** The code will be modified to address the vulnerability, following best practices and the recommendations from the CodeQL rule.
-4.  **Commit the Fix:** The changes will be committed with a clear and descriptive message that explains the vulnerability and the fix.
-5.  **Verify the Fix:** Push the branch after fixing 10 issues, use the ""CodeQL Advanced - Artifact Only" to re-analyze the branch with CodeQL to ensure that the vulnerability has been resolved and no new issues have been introduced.
+1. Parse and Prioritize: It began by inspecting the *.sarif report, identifying all unique vulnerability types (ruleId).
+# Simplified example of the command used
+python3 -c "import json; f=open('java.sarif'); data=json.load(f); rules=set(); [rules.add(r['ruleId']) for run in data['runs'] for r in run['results']]; print(rules)"
+1. Isolate and Conquer: Tackle one vulnerability class at a time, first querying the SARIF file for all instances of a specific rule (e.g., java/unsafe-deserialization).
+1. Analyze and Fix: For each instance, read the affected source file to understand the context before applying a precise, best-practice fix.
+1. Iterate: Once all instances of a class were fixed, it would re-query the SARIF data for the next vulnerability type and repeat the process until the reports were clean.
 
 ## Java Vulnerabilities (Example, more might exist, let the CodeQL report guide you)
 

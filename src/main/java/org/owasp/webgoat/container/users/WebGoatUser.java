@@ -44,6 +44,13 @@ public class WebGoatUser implements UserDetails {
     this.user = new User(username, password, getAuthorities());
   }
 
+  public void validate() {
+    if (username.matches("[\\w]+")) {
+      return;
+    }
+    throw new IllegalArgumentException("Username contains illegal characters");
+  }
+
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return Collections.singleton(new SimpleGrantedAuthority(getRole()));
   }

@@ -7224,7 +7224,7 @@ var lastActive, startXPos, startYPos, clickDragged,
 			form = radio.form,
 			radios = $( [] );
 		if ( name ) {
-			name = name.replace( /'/g, "\\'" );
+			name = name.replace( /\\/g, "\\\\" ).replace( /'/g, "\\'" );
 			if ( form ) {
 				radios = $( form ).find( "[name='" + name + "']" );
 			} else {
@@ -14069,7 +14069,9 @@ $.widget( "ui.tabs", {
 	},
 
 	_sanitizeSelector: function( hash ) {
+		return hash ? hash.replace( /[\\!"$%&'()*+,.\/:;<=>?@[\]\^`{|}~]/g, "\\_sanitizeSelector: function( hash ) {
 		return hash ? hash.replace( /[!"$%&'()*+,.\/:;<=>?@\[\]\^`{|}~]/g, "\\$&" ) : "";
+	}," ) : "";
 	},
 
 	refresh: function() {
