@@ -62,5 +62,5 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
-.gemini/settings.json
+codeql_reports/
 .env
