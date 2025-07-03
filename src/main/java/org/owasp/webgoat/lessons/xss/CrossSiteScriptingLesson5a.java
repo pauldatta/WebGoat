@@ -30,7 +30,7 @@ public class CrossSiteScriptingLesson5a implements AssignmentEndpoint {
 
   public static final Predicate<String> XSS_PATTERN =
       Pattern.compile(
-              "<script>(?:console\.log|alert)\(.*\);?</script>", Pattern.CASE_INSENSITIVE)
+              "<script>(?:console\.log|alert)\(.*\);?<\/script>", Pattern.CASE_INSENSITIVE)
           .asMatchPredicate();
 
   private final LessonSession userSessionData;
