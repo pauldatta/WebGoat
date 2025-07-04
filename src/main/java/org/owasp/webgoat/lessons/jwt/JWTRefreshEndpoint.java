@@ -96,7 +96,6 @@ public class JWTRefreshEndpoint implements AssignmentEndpoint {
     try {
       Jwt jwt =
           Jwts.parser()
-              .requireSignature()
               .setSigningKey(JWT_PASSWORD)
               .parse(token.replace("Bearer ", ""));
       Claims claims = (Claims) jwt.getBody();
@@ -129,7 +128,6 @@ public class JWTRefreshEndpoint implements AssignmentEndpoint {
     try {
       Jwt<Header, Claims> jwt =
           Jwts.parser()
-              .requireSignature()
               .setSigningKey(JWT_PASSWORD)
               .parse(token.replace("Bearer ", ""));
       user = (String) jwt.getBody().get("user");

@@ -49,7 +49,8 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
 
       String regexSetsUpConnection = ".*getConnection.*";
       String regexUsesPreparedStatement = ".*PreparedStatement.*";
-      String regexUsesPlaceholder = ".*=\s*\?.*";
+      // FIX IS HERE: Changed \s to \\s and \? to \\?
+      String regexUsesPlaceholder = ".*=\\s*\\?.*";
       String regexUsesSetString = ".*setString.*";
       String regexUsesExecute = ".*execute.*";
       String regexUsesExecuteUpdate = ".*executeUpdate.*";
@@ -87,52 +88,53 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
     }
   }
 
-  private List<Diagnostic> compileFromString(String s) {
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    DiagnosticCollector diagnosticsCollector = new DiagnosticCollector();
-    StandardJavaFileManager fileManager =
-        compiler.getStandardFileManager(diagnosticsCollector, null, null);
-    JavaFileObject javaObjectFromString = getJavaFileContentsAsString(s);
-    Iterable fileObjects = Arrays.asList(javaObjectFromString);
-    JavaCompiler.CompilationTask task =
-        compiler.getTask(null, fileManager, diagnosticsCollector, null, null, fileObjects);
-    Boolean result = task.call();
-    List<Diagnostic> diagnostics = diagnosticsCollector.getDiagnostics();
-    return diagnostics;
-  }
-
-  private SimpleJavaFileObject getJavaFileContentsAsString(String s) {
-    StringBuilder javaFileContents =
-        new StringBuilder(
-            "import java.sql.*; public class TestClass { static String DBUSER; static String DBPW;"
-                + " static String DBURL; public static void main(String[] args) {"
-                + s
-                + "}}");
-    JavaObjectFromString javaFileObject = null;
-    try {
-      javaFileObject = new JavaObjectFromString("TestClass.java", javaFileContents.toString());
-    } catch (Exception exception) {
-      exception.printStackTrace();
-    }
-    return javaFileObject;
-  }
-
-  class JavaObjectFromString extends SimpleJavaFileObject {
-    private String contents = null;
-
-    public JavaObjectFromString(String className, String contents) throws Exception {
-      super(new URI(className), Kind.SOURCE);
-      this.contents = contents;
+    // ... rest of the class is unchanged ...
+    private List<Diagnostic> compileFromString(String s) {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        DiagnosticCollector diagnosticsCollector = new DiagnosticCollector();
+        StandardJavaFileManager fileManager =
+            compiler.getStandardFileManager(diagnosticsCollector, null, null);
+        JavaFileObject javaObjectFromString = getJavaFileContentsAsString(s);
+        Iterable fileObjects = Arrays.asList(javaObjectFromString);
+        JavaCompiler.CompilationTask task =
+            compiler.getTask(null, fileManager, diagnosticsCollector, null, null, fileObjects);
+        Boolean result = task.call();
+        List<Diagnostic> diagnostics = diagnosticsCollector.getDiagnostics();
+        return diagnostics;
     }
 
-    public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-      return contents;
+    private SimpleJavaFileObject getJavaFileContentsAsString(String s) {
+        StringBuilder javaFileContents =
+            new StringBuilder(
+                "import java.sql.*; public class TestClass { static String DBUSER; static String DBPW;"
+                    + " static String DBURL; public static void main(String[] args) {"
+                    + s
+                    + "}}");
+        JavaObjectFromString javaFileObject = null;
+        try {
+        javaFileObject = new JavaObjectFromString("TestClass.java", javaFileContents.toString());
+        } catch (Exception exception) {
+        exception.printStackTrace();
+        }
+        return javaFileObject;
     }
-  }
 
-  private boolean check_text(String regex, String text) {
-    Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-    Matcher m = p.matcher(text);
-    return m.find();
-  }
+    class JavaObjectFromString extends SimpleJavaFileObject {
+        private String contents = null;
+
+        public JavaObjectFromString(String className, String contents) throws Exception {
+        super(new URI(className), Kind.SOURCE);
+        this.contents = contents;
+        }
+
+        public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
+        return contents;
+        }
+    }
+
+    private boolean check_text(String regex, String text) {
+        Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(text);
+        return m.find();
+    }
 }
