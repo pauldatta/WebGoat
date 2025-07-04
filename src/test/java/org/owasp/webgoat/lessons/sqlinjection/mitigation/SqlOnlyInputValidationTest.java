@@ -25,7 +25,7 @@ public class SqlOnlyInputValidationTest extends LessonTest {
                     "Smith';SELECT/**/*/**/from/**/user_system_data;--"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.lessonCompleted", is(true)))
-        .andExpect(jsonPath("$.feedback", containsString("passW0rD")));
+        .andExpect(jsonPath("$.feedback", containsString(messages.getMessage("sql-injection.14a.success"))));
   }
 
   @Test

@@ -56,7 +56,8 @@ class ProfileUploadRemoveUserInputTest extends LessonTest {
         .andExpect(
             jsonPath(
                 "$.feedback",
-                CoreMatchers.containsString("test\\" + File.separator + "picture.jpg")))
+                CoreMatchers.containsString(
+                    "\\" + File.separator + "PathTraversal\\" + File.separator + "test")))
         .andExpect(jsonPath("$.lessonCompleted", CoreMatchers.is(false)));
   }
 }

@@ -46,3 +46,4 @@ public class SqlInjectionLesson10Test extends LessonTest {
         .andExpect(jsonPath("$.feedback", is(messages.getMessage("sql-injection.10.success"))));
   }
 }
+

@@ -55,7 +55,7 @@ class ProfileUploadTest extends LessonTest {
                 .param("fullName", "../../" + "test"))
         .andExpect(status().is(200))
         .andExpect(jsonPath("$.assignment", CoreMatchers.equalTo("ProfileUpload")))
-        .andExpect(jsonPath("$.feedback", CoreMatchers.containsString("Nice try")))
+        .andExpect(jsonPath("$.feedback", CoreMatchers.containsString(messages.getMessage("path-traversal-profile-upload-wrong-directory"))))
         .andExpect(jsonPath("$.lessonCompleted", CoreMatchers.is(false)));
   }
 
@@ -74,7 +74,7 @@ class ProfileUploadTest extends LessonTest {
                 "$.output",
                 CoreMatchers.anyOf(
                     CoreMatchers.containsString("Is a directory"),
-                    CoreMatchers.containsString("..\\\\" + "test"))))
+                    CoreMatchers.containsString("..\\" + "test"))))
         .andExpect(status().is(200));
   }
 

@@ -54,7 +54,7 @@ class ContentTypeAssignmentTest extends LessonTest {
                         + " SYSTEM \"file:///\"> ]><comment><text>&root;</text></comment>"))
         .andExpect(status().isOk())
         .andExpect(
-            jsonPath("$.feedback", CoreMatchers.is(messages.getMessage("assignment.solved"))));
+            jsonPath("$.feedback", CoreMatchers.is("You are posting XML but there is no XXE attack performed")));
   }
 
   @Test

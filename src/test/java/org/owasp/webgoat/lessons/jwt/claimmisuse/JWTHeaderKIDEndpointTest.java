@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.impl.TextCodec;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class JWTHeaderKIDEndpointTest extends LessonTest {
                 "kid", "hacked' UNION select '" + key + "' from INFORMATION_SCHEMA.SYSTEM_USERS --")
             .setIssuedAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toDays(10)))
             .setClaims(claims)
-            .signWith(io.jsonwebtoken.SignatureAlgorithm.HS512, key)
+            .signWith(io.jsonwebtoken.SignatureAlgorithm.HS512, "deletingTom".getBytes())
             .compact();
     mockMvc
         .perform(MockMvcRequestBuilders.post("/JWT/kid/delete").param("token", token).content(""))

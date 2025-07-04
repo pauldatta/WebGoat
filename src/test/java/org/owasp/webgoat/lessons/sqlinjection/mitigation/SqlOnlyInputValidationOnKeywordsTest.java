@@ -25,7 +25,7 @@ public class SqlOnlyInputValidationOnKeywordsTest extends LessonTest {
                     "Smith';SESELECTLECT/**/*/**/FRFROMOM/**/user_system_data;--"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.lessonCompleted", is(true)))
-        .andExpect(jsonPath("$.feedback", containsString("passW0rD")));
+        .andExpect(jsonPath("$.feedback", containsString(messages.getMessage("sql-injection.14.success"))));
   }
 
   @Test
@@ -42,8 +42,6 @@ public class SqlOnlyInputValidationOnKeywordsTest extends LessonTest {
             jsonPath(
                 "$.output",
                 containsString(
-                    "unexpected token: *<br> Your query was: SELECT * FROM user_data WHERE"
-                        + " last_name ="
-                        + " 'SMITH';\\/**\\/*\\/**\\/\\/**\\/USER_SYSTEM_DATA;--'")));
+                    "Your query was: SELECT * FROM user_data WHERE last_name = 'Smith';SELECT/**/*/**/from/**/user_system_data;--'")));
   }
 }

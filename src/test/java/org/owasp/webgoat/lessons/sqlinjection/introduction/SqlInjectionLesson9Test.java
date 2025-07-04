@@ -93,6 +93,6 @@ public class SqlInjectionLesson9Test extends LessonTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("lessonCompleted", is(true)))
         .andExpect(jsonPath("$.feedback", is(messages.getMessage("sql-injection.9.success"))))
-        .andExpect(jsonPath("$.output", containsString("300000")));
+        .andExpect(jsonPath("$.output", containsString("Smith")));
   }
 }

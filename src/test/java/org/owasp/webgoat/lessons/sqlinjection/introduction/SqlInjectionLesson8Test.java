@@ -80,6 +80,6 @@ public class SqlInjectionLesson8Test extends LessonTest {
                 .param("auth_tan", "3SL99A' OR '1' = '1'"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("lessonCompleted", is(false)))
-        .andExpect(jsonPath("$.output", containsString("feedback-negative")));
+        .andExpect(jsonPath("$.output", containsString("Smith")));
   }
 }

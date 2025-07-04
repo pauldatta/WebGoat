@@ -64,7 +64,9 @@ class DeserializeTest extends LessonTest {
         .andExpect(
             jsonPath(
                 "$.feedback",
-                CoreMatchers.is(messages.getMessage("insecure-deserialization.invalidversion"))))
+                CoreMatchers.is(
+                    "The serialization id does not match. Probably the version has been"
+                        + " updated. Let's try again.")))
         .andExpect(jsonPath("$.lessonCompleted", is(false)));
   }
 
@@ -78,7 +80,10 @@ class DeserializeTest extends LessonTest {
         .andExpect(
             jsonPath(
                 "$.feedback",
-                CoreMatchers.is(messages.getMessage("insecure-deserialization.expired"))))
+                CoreMatchers.is(
+                    "The task is not executable between now and the next ten minutes, so the"
+                        + " action will be ignored. Maybe you copied an old solution? Let's try"
+                        + " again.")))
         .andExpect(jsonPath("$.lessonCompleted", is(false)));
   }
 
