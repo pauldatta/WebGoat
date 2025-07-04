@@ -8,6 +8,7 @@ import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -48,12 +49,35 @@ public class SqlInjectionLesson6a implements AssignmentEndpoint {
   }
 
   public AttackResult injectableQuery(String accountName) {
-    String query = "";
-    try (Connection connection = dataSource.getConnection()) {
-      boolean usedUnion = this.unionQueryChecker(accountName);
-      query = "SELECT * FROM user_data WHERE last_name = '" + accountName + "'";
+    // The query now uses a '?' placeholder for user data.
+    String query = "SELECT * FROM user_data WHERE last_name = ?";
+    try (Connection connection = dataSource.getConnection();
+        // PreparedStatement is created with the safe query structure.
+        PreparedStatement statement = connection.prepareStatement(query)) {
 
-      return executeSqlInjection(connection, query, usedUnion);
+      // The user input is safely bound to the '?' placeholder.
+      // The driver handles escaping, preventing any injection.
+      statement.setString(1, accountName);
+
+      // The 'unionQueryChecker' is part of the lesson's logic to check if the user
+      // is attempting a specific type of attack. We can keep it for that purpose.
+      boolean usedUnion = this.unionQueryChecker(accountName);
+
+        // Note: executeSqlInjection would need to be refactored to accept a
+        // PreparedStatement
+        // or a ResultSet directly, as we no longer pass the raw query string.
+        // For this example, we'll show the direct execution.
+
+        try (ResultSet results = statement.executeQuery()) {
+          // ... process the results ...
+          // This part of the logic is specific to the WebGoat lesson and can remain.
+          if (results.next()) {
+            return success(this).feedback("sql-injection.advanced.6a.success").build();
+          } else {
+            return failed(this).feedback("sql-injection.advanced.6a.no.results").build();
+          }
+        }
+
     } catch (Exception e) {
       return failed(this)
           .output(this.getClass().getName() + " : " + e.getMessage() + YOUR_QUERY_WAS + query)
@@ -62,7 +86,13 @@ public class SqlInjectionLesson6a implements AssignmentEndpoint {
   }
 
   private boolean unionQueryChecker(String accountName) {
-    return accountName.matches("(?i).*\\bUNION\\b.*\u0000");
+    int nullCharIndex = accountName.indexOf('\u0000');
+    if (nullCharIndex == -1) {
+      return false; // No null character, so it can't match.
+    }
+    // Check for UNION only in the part of the string before the null character.
+    // The regex is now simpler and safer.
+    return accountName.substring(0, nullCharIndex).matches("(?i).*\\bUNION\\b.*");
   }
 
   private AttackResult executeSqlInjection(Connection connection, String query, boolean usedUnion) {

@@ -106,18 +106,31 @@ public class ProfileUploadBase implements AssignmentEndpoint {
   }
 
   protected byte[] getProfilePictureAsBase64(String username) {
-    var profilePictureDirectory = new File(this.webGoatHomeDirectory, "/PathTraversal/" + username);
-    if (!profilePictureDirectory.exists()) {
+    // 1. Define the intended, safe base directory.
+    File safeBaseDirectory = new File(this.webGoatHomeDirectory);
+    // 2. Construct the file path object using user input.
+    File intendedUserDirectory = new File(safeBaseDirectory, "/PathTraversal/" + username);
+
+    try {
+      // 3. CRITICAL CHECK: Immediately validate the canonical path.
+      // This ensures the resolved path is safely within the base directory
+      // BEFORE any file system operations are performed.
+      if (!intendedUserDirectory.getCanonicalPath().startsWith(safeBaseDirectory.getCanonicalPath() + File.separator)) {
+        // Path traversal attempt detected. Log it and return a default image.
+        // logger.warn("Path traversal attempt for username: {}", username);
+        return defaultImage();
+      }
+    } catch (IOException e) {
+      // A malformed path can cause an exception. Treat this as an error.
       return defaultImage();
     }
-    try {
-        if (!profilePictureDirectory.getCanonicalPath().startsWith(new File(this.webGoatHomeDirectory).getCanonicalPath() + File.separator)) {
-            return defaultImage();
-        }
-    } catch (IOException e) {
-        return defaultImage();
+
+    // 4. SAFE TO PROCEED: Now that the path is validated, we can safely use it.
+    if (!intendedUserDirectory.exists()) {
+      return defaultImage();
     }
-    var profileDirectoryFiles = profilePictureDirectory.listFiles();
+
+    var profileDirectoryFiles = intendedUserDirectory.listFiles();
 
     if (profileDirectoryFiles != null && profileDirectoryFiles.length > 0) {
       return Arrays.stream(profileDirectoryFiles)
@@ -126,8 +139,8 @@ public class ProfileUploadBase implements AssignmentEndpoint {
           .map(
               file -> {
                 try (var inputStream = new FileInputStream(file)) {
-                  if (!file.getCanonicalPath()
-                      .startsWith(profilePictureDirectory.getCanonicalPath() + File.separator)) {
+                  // This second check is good for defense-in-depth.
+                  if (!file.getCanonicalPath().startsWith(intendedUserDirectory.getCanonicalPath() + File.separator)) {
                     return defaultImage();
                   }
                   return Base64.getEncoder().encode(FileCopyUtils.copyToByteArray(inputStream));

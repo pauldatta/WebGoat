@@ -45,7 +45,7 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
     try {
       if (editor.isEmpty()) return failed(this).feedback("sql-injection.10b.no-code").build();
 
-      editor = editor.replaceAll("<.*?>", "");
+      editor = editor.replaceAll("<[^>]*>", "");
 
       String regexSetsUpConnection = ".*getConnection.*";
       String regexUsesPreparedStatement = ".*PreparedStatement.*";
