@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright © 2019 WebGoat authors
+ * SPDX-FileCopyrightText: Copyright © 2025 WebGoat authors
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 package org.owasp.webgoat.lessons.xss.mitigation;
@@ -7,6 +7,7 @@ package org.owasp.webgoat.lessons.xss.mitigation;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
+import com.google.re2j.Pattern;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
 import org.owasp.webgoat.container.assignments.AttackResult;
@@ -25,14 +26,14 @@ public class CrossSiteScriptingLesson4 implements AssignmentEndpoint {
 
     String editor = editor2.replaceAll("<[^>]*>", "");
 
-    if ((editor.contains("Policy.getInstance(\"antisamy-slashdot.xml\"")
-            || editor.contains(".scan(newComment, \"antisamy-slashdot.xml\"")
-            || editor.contains(".scan(newComment, new File(\"antisamy-slashdot.xml\")"))
-        && editor.contains("new AntiSamy()")
-        && editor.contains(".scan(newComment,")
-        && editor.contains("CleanResults")
-        && editor.contains("MyCommentDAO.addComment(threadID, userID")
-        && editor.contains(".getCleanHTML()")) {
+    if ((Pattern.compile("Policy.getInstance(\"antisamy-slashdot.xml\"").matcher(editor).find()
+            || Pattern.compile(".scan(newComment, \"antisamy-slashdot.xml\"").matcher(editor).find()
+            || Pattern.compile(".scan(newComment, new File(\"antisamy-slashdot.xml\")").matcher(editor).find())
+        && Pattern.compile("new AntiSamy()").matcher(editor).find()
+        && Pattern.compile(".scan(newComment,").matcher(editor).find()
+        && Pattern.compile("CleanResults").matcher(editor).find()
+        && Pattern.compile("MyCommentDAO.addComment(threadID, userID").matcher(editor).find()
+        && Pattern.compile(".getCleanHTML())").matcher(editor).find()) {
       return success(this).feedback("xss-mitigation-4-success").build();
     } else {
       return failed(this).feedback("xss-mitigation-4-failed").build();

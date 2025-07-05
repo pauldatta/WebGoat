@@ -44,6 +44,9 @@ public class InsecureDeserializationTask implements AssignmentEndpoint {
         new SafeObjectInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(b64token)))) {
       before = System.currentTimeMillis();
       Object o = ois.readObject();
+      if (o == null) {
+        return failed(this).feedback("insecure-deserialization.null").build();
+      }
       if (!(o instanceof VulnerableTaskHolder)) {
         if (o instanceof String) {
           return failed(this).feedback("insecure-deserialization.stringobject").build();

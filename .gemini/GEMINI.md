@@ -16,6 +16,12 @@ python3 -c "import json; f=open('java.sarif'); data=json.load(f); rules=set(); [
 1. Analyze and Fix: For each instance, read the affected source file to understand the context before applying a precise, best-practice fix.
 1. Iterate: Once all instances of a class were fixed, it would re-query the SARIF data for the next vulnerability type and repeat the process until the reports were clean.
 
+## Downloading Artifacts
+1. Use list_workflow_run_artifacts (github MCP Server) using the user provided run id within the url
+1. Use  download_workflow_run_artifact (github MCP Server) and then curl to download the report
+1. unzip the report into the codeql_reports directory
+
+
 ## Java Vulnerabilities (Example, more might exist, let the CodeQL report guide you)
 
 | Rule ID                       | Description                                                             | File Path                                                                                                        |

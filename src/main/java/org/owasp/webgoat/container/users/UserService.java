@@ -4,6 +4,7 @@
  */
 package org.owasp.webgoat.container.users;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
@@ -51,7 +52,13 @@ public class UserService implements UserDetailsService {
 
   private void createLessonsForUser(WebGoatUser webGoatUser) {
     webGoatUser.validate();
-    jdbcTemplate.update("CREATE SCHEMA ? authorization dba", webGoatUser.getUsername());
+    try (var connection = jdbcTemplate.getDataSource().getConnection()) {
+      var statement = connection.prepareStatement("CREATE SCHEMA ? AUTHORIZATION DBA");
+      statement.setString(1, webGoatUser.getUsername());
+      statement.execute();
+    } catch (SQLException e) {
+      // schema already exists, ignore
+    }
     flywayLessons.apply(webGoatUser.getUsername()).migrate();
   }
 
