@@ -64,3 +64,4 @@ node_modules/
 
 codeql_reports/
 .env
+work_reports/

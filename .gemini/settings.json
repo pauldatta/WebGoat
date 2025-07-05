@@ -9,6 +9,13 @@
         "Authorization": "Bearer $GITHUB_PAT",
         "Content-Type": "application/json"
       }
+    },
+    "IntelligentChatAnalyzer": {
+      "httpUrl": "http://127.0.0.1:8000/mcp/",
+      "timeout": 5000,
+      "headers": {
+        "Content-Type": "application/json"
+      }
     }
   }
 }
