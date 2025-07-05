@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright © 2018 WebGoat authors
+ * SPDX-FileCopyrightText: Copyright © 2025 WebGoat authors
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 package org.owasp.webgoat.lessons.sqlinjection.mitigation;
@@ -7,12 +7,11 @@ package org.owasp.webgoat.lessons.sqlinjection.mitigation;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
+import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -45,14 +44,14 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
     try {
       if (editor.isEmpty()) return failed(this).feedback("sql-injection.10b.no-code").build();
 
-      editor = editor.replaceAll("\\<.*?>", "");
+      editor = com.google.re2j.Pattern.compile("<[^>]*>").matcher(editor).replaceAll("");
 
-      String regexSetsUpConnection = "(?=.*getConnection.*)";
-      String regexUsesPreparedStatement = "(?=.*PreparedStatement.*)";
-      String regexUsesPlaceholder = "(?=.*\\=\\?.*|.*\\=\\s\\?.*)";
-      String regexUsesSetString = "(?=.*setString.*)";
-      String regexUsesExecute = "(?=.*execute.*)";
-      String regexUsesExecuteUpdate = "(?=.*executeUpdate.*)";
+      String regexSetsUpConnection = "getConnection";
+      String regexUsesPreparedStatement = "PreparedStatement";
+      String regexUsesPlaceholder = "=\\s*\\?";
+      String regexUsesSetString = "setString";
+      String regexUsesExecute = "execute";
+      String regexUsesExecuteUpdate = "executeUpdate";
 
       String codeline = editor.replace("\n", "").replace("\r", "");
 
@@ -131,9 +130,6 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
   }
 
   private boolean check_text(String regex, String text) {
-    Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-    Matcher m = p.matcher(text);
-    if (m.find()) return true;
-    else return false;
+    return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text).find();
   }
 }

@@ -11,6 +11,7 @@ import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -52,11 +53,15 @@ import org.springframework.web.bind.annotation.RestController;
 })
 public class JWTVotesEndpoint implements AssignmentEndpoint {
 
-  public static final String JWT_PASSWORD = TextCodec.BASE64.encode("victory");
+  private final JWTTokenService jwtTokenService;
   private static String validUsers = "TomJerrySylvester";
 
   private static int totalVotes = 38929;
   private final Map<String, Vote> votes = new HashMap<>();
+
+  public JWTVotesEndpoint(JWTTokenService jwtTokenService) {
+    this.jwtTokenService = jwtTokenService;
+  }
 
   @PostConstruct
   public void initVotes() {
@@ -106,11 +111,7 @@ public class JWTVotesEndpoint implements AssignmentEndpoint {
       Claims claims = Jwts.claims().setIssuedAt(Date.from(Instant.now().plus(Duration.ofDays(10))));
       claims.put("admin", "false");
       claims.put("user", user);
-      String token =
-          Jwts.builder()
-              .setClaims(claims)
-              .signWith(io.jsonwebtoken.SignatureAlgorithm.HS512, JWT_PASSWORD)
-              .compact();
+      String token = jwtTokenService.createToken(claims);
       Cookie cookie = new Cookie("access_token", token);
       response.addCookie(cookie);
       response.setStatus(HttpStatus.OK.value());
@@ -136,8 +137,8 @@ public class JWTVotesEndpoint implements AssignmentEndpoint {
       value.setSerializationView(Views.GuestView.class);
     } else {
       try {
-        Jwt jwt = Jwts.parser().setSigningKey(JWT_PASSWORD).parse(accessToken);
-        Claims claims = (Claims) jwt.getBody();
+        Jws<Claims> jws = jwtTokenService.parseToken(accessToken);
+        Claims claims = jws.getBody();
         String user = (String) claims.get("user");
         if ("Guest".equals(user) || !validUsers.contains(user)) {
           value.setSerializationView(Views.GuestView.class);
@@ -161,8 +162,8 @@ public class JWTVotesEndpoint implements AssignmentEndpoint {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     } else {
       try {
-        Jwt jwt = Jwts.parser().setSigningKey(JWT_PASSWORD).parse(accessToken);
-        Claims claims = (Claims) jwt.getBody();
+        Jws<Claims> jws = jwtTokenService.parseToken(accessToken);
+        Claims claims = jws.getBody();
         String user = (String) claims.get("user");
         if (!validUsers.contains(user)) {
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -184,8 +185,8 @@ public class JWTVotesEndpoint implements AssignmentEndpoint {
       return failed(this).feedback("jwt-invalid-token").build();
     } else {
       try {
-        Jwt jwt = Jwts.parser().setSigningKey(JWT_PASSWORD).parse(accessToken);
-        Claims claims = (Claims) jwt.getBody();
+        Jws<Claims> jws = jwtTokenService.parseToken(accessToken);
+        Claims claims = jws.getBody();
         boolean isAdmin = Boolean.valueOf(String.valueOf(claims.get("admin")));
         if (!isAdmin) {
           return failed(this).feedback("jwt-only-admin").build();

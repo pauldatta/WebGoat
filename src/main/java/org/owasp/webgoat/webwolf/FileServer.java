@@ -68,11 +68,17 @@ public class FileServer {
       throws IOException {
     var username = authentication.getName();
     var destinationDir = new File(fileLocation, username);
+    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath() + File.separator)) {
+        throw new IOException("Invalid username");
+    }
     destinationDir.mkdirs();
     // DO NOT use multipartFile.transferTo(), see
     // https://stackoverflow.com/questions/60336929/java-nio-file-nosuchfileexception-when-file-transferto-is-called
     try (InputStream is = multipartFile.getInputStream()) {
       var destinationFile = destinationDir.toPath().resolve(multipartFile.getOriginalFilename());
+      if (!destinationFile.toFile().getCanonicalPath().startsWith(destinationDir.getCanonicalPath() + File.separator)) {
+        throw new IOException("File is outside of the target directory");
+      }
       Files.deleteIfExists(destinationFile);
       Files.copy(is, destinationFile);
     }
@@ -85,9 +91,15 @@ public class FileServer {
 
   @GetMapping(value = "/files")
   public ModelAndView getFiles(
-      HttpServletRequest request, Authentication authentication, TimeZone timezone) {
+      HttpServletRequest request, Authentication authentication, TimeZone timezone) throws IOException {
     String username = (null != authentication) ? authentication.getName() : "anonymous";
     File destinationDir = new File(fileLocation, username);
+    if (!destinationDir.getCanonicalPath().startsWith(new File(fileLocation).getCanonicalPath() + File.separator)) {
+        throw new IOException("Invalid username");
+    }
+    if (!destinationDir.exists()) {
+      destinationDir.mkdirs();
+    }
 
     ModelAndView modelAndView = new ModelAndView();
     modelAndView.setViewName("files");
@@ -103,10 +115,17 @@ public class FileServer {
     File[] files = destinationDir.listFiles(File::isFile);
     if (files != null) {
       for (File file : files) {
-        String size = FileUtils.byteCountToDisplaySize(file.length());
-        String link = String.format("files/%s/%s", username, file.getName());
-        uploadedFiles.add(
-            new UploadedFile(file.getName(), size, link, getCreationTime(timezone, file)));
+        try {
+          if (!file.getCanonicalPath().startsWith(destinationDir.getCanonicalPath() + File.separator)) {
+            continue;
+          }
+          String size = FileUtils.byteCountToDisplaySize(file.length());
+          String link = String.format("files/%s/%s", username, file.getName());
+          uploadedFiles.add(
+              new UploadedFile(file.getName(), size, link, getCreationTime(timezone, file)));
+        } catch (IOException e) {
+          log.error("Error while getting canonical path for file {}", file.getName());
+        }
       }
     }
 

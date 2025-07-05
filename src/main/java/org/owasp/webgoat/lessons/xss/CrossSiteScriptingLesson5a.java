@@ -28,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
     })
 public class CrossSiteScriptingLesson5a implements AssignmentEndpoint {
 
+  // FIX: Escaped the backslashes for the Java compiler and made the wildcard
+  // non-greedy.
   public static final Predicate<String> XSS_PATTERN =
       Pattern.compile(
-              ".*<script>(console\\.log|alert)\\(.*\\);?</script>.*", Pattern.CASE_INSENSITIVE)
+          "<script>(?:console\\.log|alert)\\(.*?\\);?</script>", Pattern.CASE_INSENSITIVE)
           .asMatchPredicate();
 
   private final LessonSession userSessionData;

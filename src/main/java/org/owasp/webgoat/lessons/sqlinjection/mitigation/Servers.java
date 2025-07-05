@@ -44,6 +44,10 @@ public class Servers {
   @ResponseBody
   public List<Server> sort(@RequestParam String column) throws Exception {
     List<Server> servers = new ArrayList<>();
+    List<String> columns = List.of("id", "hostname", "ip", "mac", "status", "description");
+    if (!columns.contains(column.toLowerCase())) {
+      column = "id";
+    }
 
     try (var connection = dataSource.getConnection()) {
       try (var statement =

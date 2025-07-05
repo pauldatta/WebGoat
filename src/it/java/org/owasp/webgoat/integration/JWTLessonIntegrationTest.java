@@ -34,7 +34,12 @@ import org.jose4j.jwk.RsaJsonWebKey;
 import org.junit.jupiter.api.Test;
 import org.owasp.webgoat.lessons.jwt.JWTSecretKeyEndpoint;
 
+import org.owasp.webgoat.lessons.jwt.JWTTokenService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 public class JWTLessonIntegrationTest extends IntegrationTest {
+
+  @Autowired private JWTTokenService jwtTokenService;
 
   @Test
   public void solveAssignment() throws IOException, NoSuchAlgorithmException {
@@ -58,23 +63,22 @@ public class JWTLessonIntegrationTest extends IntegrationTest {
   }
 
   private String generateToken(String key) {
-    return Jwts.builder()
-        .setIssuer("WebGoat Token Builder")
-        .setAudience("webgoat.org")
-        .setIssuedAt(Calendar.getInstance().getTime())
-        .setExpiration(Date.from(Instant.now().plusSeconds(60)))
-        .setSubject("tom@webgoat.org")
-        .claim("username", "WebGoat")
-        .claim("Email", "tom@webgoat.org")
-        .claim("Role", new String[] {"Manager", "Project Administrator"})
-        .signWith(SignatureAlgorithm.HS256, key)
-        .compact();
+    return jwtTokenService.createToken(
+        Map.of(
+            "iss", "WebGoat Token Builder",
+            "aud", "webgoat.org",
+            "iat", Calendar.getInstance().getTime(),
+            "exp", Date.from(Instant.now().plusSeconds(60)),
+            "sub", "tom@webgoat.org",
+            "username", "WebGoat",
+            "Email", "tom@webgoat.org",
+            "Role", new String[] {"Manager", "Project Administrator"}));
   }
 
   private String getSecretToken(String token) {
     for (String key : JWTSecretKeyEndpoint.SECRETS) {
       try {
-        Jwt jwt = Jwts.parser().setSigningKey(TextCodec.BASE64.encode(key)).parse(token);
+        jwtTokenService.parseToken(token);
       } catch (JwtException e) {
         continue;
       }

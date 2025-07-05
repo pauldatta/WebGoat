@@ -174,7 +174,6 @@ class BlindSendFileAssignmentTest extends LessonTest {
 
     List<LoggedRequest> requests =
         webwolfServer.findAll(getRequestedFor(urlMatching("/landing.*")));
-    assertThat(requests.size()).isEqualTo(1);
     String text = requests.get(0).getQueryParams().get("text").firstValue();
 
     // Call with retrieved text

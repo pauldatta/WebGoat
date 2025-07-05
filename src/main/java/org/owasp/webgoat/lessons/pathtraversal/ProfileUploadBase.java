@@ -49,6 +49,9 @@ public class ProfileUploadBase implements AssignmentEndpoint {
 
     try {
       var uploadedFile = new File(uploadDirectory, fullName);
+      if (!uploadedFile.getCanonicalPath().startsWith(uploadDirectory.getCanonicalPath() + File.separator)) {
+        return failed(this).output("File is outside of the target directory").build();
+      }
       uploadedFile.createNewFile();
       FileCopyUtils.copy(file.getBytes(), uploadedFile);
 
@@ -68,6 +71,9 @@ public class ProfileUploadBase implements AssignmentEndpoint {
   @SneakyThrows
   protected File cleanupAndCreateDirectoryForUser(String username) {
     var uploadDirectory = new File(this.webGoatHomeDirectory, "/PathTraversal/" + username);
+    if (!uploadDirectory.getCanonicalPath().startsWith(new File(this.webGoatHomeDirectory).getCanonicalPath() + File.separator)) {
+        throw new IOException("Invalid username");
+    }
     if (uploadDirectory.exists()) {
       FileSystemUtils.deleteRecursively(uploadDirectory);
     }
@@ -100,8 +106,31 @@ public class ProfileUploadBase implements AssignmentEndpoint {
   }
 
   protected byte[] getProfilePictureAsBase64(String username) {
-    var profilePictureDirectory = new File(this.webGoatHomeDirectory, "/PathTraversal/" + username);
-    var profileDirectoryFiles = profilePictureDirectory.listFiles();
+    // 1. Define the intended, safe base directory.
+    File safeBaseDirectory = new File(this.webGoatHomeDirectory);
+    // 2. Construct the file path object using user input.
+    File intendedUserDirectory = new File(safeBaseDirectory, "/PathTraversal/" + username);
+
+    try {
+      // 3. CRITICAL CHECK: Immediately validate the canonical path.
+      // This ensures the resolved path is safely within the base directory
+      // BEFORE any file system operations are performed.
+      if (!intendedUserDirectory.getCanonicalPath().startsWith(safeBaseDirectory.getCanonicalPath() + File.separator)) {
+        // Path traversal attempt detected. Log it and return a default image.
+        // logger.warn("Path traversal attempt for username: {}", username);
+        return defaultImage();
+      }
+    } catch (IOException e) {
+      // A malformed path can cause an exception. Treat this as an error.
+      return defaultImage();
+    }
+
+    // 4. SAFE TO PROCEED: Now that the path is validated, we can safely use it.
+    if (!intendedUserDirectory.exists()) {
+      return defaultImage();
+    }
+
+    var profileDirectoryFiles = intendedUserDirectory.listFiles();
 
     if (profileDirectoryFiles != null && profileDirectoryFiles.length > 0) {
       return Arrays.stream(profileDirectoryFiles)
@@ -109,7 +138,11 @@ public class ProfileUploadBase implements AssignmentEndpoint {
           .findFirst()
           .map(
               file -> {
-                try (var inputStream = new FileInputStream(profileDirectoryFiles[0])) {
+                try (var inputStream = new FileInputStream(file)) {
+                  // This second check is good for defense-in-depth.
+                  if (!file.getCanonicalPath().startsWith(intendedUserDirectory.getCanonicalPath() + File.separator)) {
+                    return defaultImage();
+                  }
                   return Base64.getEncoder().encode(FileCopyUtils.copyToByteArray(inputStream));
                 } catch (IOException e) {
                   return defaultImage();

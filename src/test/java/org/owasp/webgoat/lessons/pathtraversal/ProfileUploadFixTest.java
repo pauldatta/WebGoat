@@ -55,7 +55,9 @@ class ProfileUploadFixTest extends LessonTest {
         .andExpect(status().is(200))
         .andExpect(
             jsonPath(
-                "$.feedback", CoreMatchers.containsString("test\\" + File.separator + "John Doe")))
+                "$.feedback",
+                CoreMatchers.containsString(
+                    "\\" + File.separator + "PathTraversal\\" + File.separator + "test")))
         .andExpect(jsonPath("$.lessonCompleted", CoreMatchers.is(false)));
   }
 }

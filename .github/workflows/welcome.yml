@@ -5,6 +5,10 @@ on:
     types:
       - opened
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   greeting:
     if: github.repository == 'WebGoat/WebGoat'
