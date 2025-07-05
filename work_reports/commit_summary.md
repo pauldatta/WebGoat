@@ -55,3 +55,20 @@ The commits can be categorized into the following types:
 * **CodeQL Reports**: Removed SARIF files from the `codeql_reports` directory.
 * **Gemini Context**: Updated `.gemini/GEMINI.md` and added `.gemini/settings.json`.
 
+## V4 Fixes
+
+The V4 commits primarily focused on addressing the remaining vulnerabilities and fixing the build issues that arose from the initial security patches. The key changes include:
+
+* **Security Fixes:**
+  * Addressed ReDoS vulnerabilities in `SqlInjectionLesson10b.java` and `CrossSiteScriptingLesson4.java` by using the `re2j` library.
+  * Fixed a path injection vulnerability in `ProfileZipSlip.java` by adding a check to ensure that the zip entry is not a directory.
+  * Addressed an XXE vulnerability in `CommentsCache.java` by disabling external entities.
+  * Fixed an unsafe deserialization vulnerability in `InsecureDeserializationTask.java` by adding a null check.
+  * Addressed an unsafe deserialization vulnerability in `VulnerableComponentsLesson.java` by adding a null check.
+  * Fixed a SQL injection vulnerability in `UserService.java` by using a prepared statement.
+  * Addressed a DOM-based XSS vulnerability in `HtmlTampering.html` by using `textContent` instead of `innerHTML`.
+* **Build and Test Fixes:**
+  * Addressed multiple compilation errors by adding missing imports and correcting method signatures.
+* **Housekeeping:**
+  * Updated reports and commit summaries.
+
