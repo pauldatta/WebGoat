@@ -69,9 +69,7 @@ public class CommentsCache {
       throws XMLStreamException, JAXBException {
     var jc = JAXBContext.newInstance(Comment.class);
     var xif = XMLInputFactory.newInstance();
-
-    xif.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, ""); // Compliant
-    xif.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // compliant
+    xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 
     var xsr = xif.createXMLStreamReader(new StringReader(xml));
 

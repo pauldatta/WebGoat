@@ -47,13 +47,12 @@ public class SqlInjectionLesson10b implements AssignmentEndpoint {
 
       editor = editor.replaceAll("<[^>]*>", "");
 
-      String regexSetsUpConnection = ".*getConnection.*";
-      String regexUsesPreparedStatement = ".*PreparedStatement.*";
-      // FIX IS HERE: Changed \s to \\s and \? to \\?
-      String regexUsesPlaceholder = ".*=\\s*\\?.*";
-      String regexUsesSetString = ".*setString.*";
-      String regexUsesExecute = ".*execute.*";
-      String regexUsesExecuteUpdate = ".*executeUpdate.*";
+      String regexSetsUpConnection = "getConnection";
+      String regexUsesPreparedStatement = "PreparedStatement";
+      String regexUsesPlaceholder = "=\\s*\\?";
+      String regexUsesSetString = "setString";
+      String regexUsesExecute = "execute";
+      String regexUsesExecuteUpdate = "executeUpdate";
 
       String codeline = editor.replace("\n", "").replace("\r", "");
 

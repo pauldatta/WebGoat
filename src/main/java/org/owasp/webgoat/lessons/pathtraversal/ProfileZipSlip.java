@@ -76,12 +76,12 @@ public class ProfileZipSlip extends ProfileUploadBase {
       Enumeration<? extends ZipEntry> entries = zip.entries();
       while (entries.hasMoreElements()) {
         ZipEntry e = entries.nextElement();
-        File f = new File(tmpZipDirectory.toFile(), e.getName());
-        if (!f.getCanonicalPath().startsWith(tmpZipDirectory.toFile().getCanonicalPath() + File.separator)) {
+        var extractedFile = tmpZipDirectory.resolve(e.getName()).normalize();
+        if (!extractedFile.startsWith(tmpZipDirectory)) {
           throw new IOException("Zip entry is outside of the target dir: " + e.getName());
         }
         InputStream is = zip.getInputStream(e);
-        Files.copy(is, f.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(is, extractedFile, StandardCopyOption.REPLACE_EXISTING);
       }
 
       return isSolved(currentImage, getProfilePictureAsBase64(username));

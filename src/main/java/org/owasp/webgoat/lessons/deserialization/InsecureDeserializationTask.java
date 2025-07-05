@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright © 2014 WebGoat authors
+ * SPDX-FileCopyrightText: Copyright © 2025 WebGoat authors
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 package org.owasp.webgoat.lessons.deserialization;
@@ -16,7 +16,7 @@ import org.dummy.insecure.framework.VulnerableTaskHolder;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
 import org.owasp.webgoat.container.assignments.AttackResult;
-import org.owasp.webgoat.lessons.deserialization.validation.MyObjectInputStream;
+import org.owasp.webgoat.lessons.deserialization.validation.SafeObjectInputStream;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -41,7 +41,7 @@ public class InsecureDeserializationTask implements AssignmentEndpoint {
     b64token = token.replace('-', '+').replace('_', '/');
 
     try (ObjectInputStream ois =
-        new MyObjectInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(b64token)))) {
+        new SafeObjectInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(b64token)))) {
       before = System.currentTimeMillis();
       Object o = ois.readObject();
       if (!(o instanceof VulnerableTaskHolder)) {

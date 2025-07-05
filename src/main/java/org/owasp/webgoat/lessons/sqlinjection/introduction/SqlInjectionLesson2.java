@@ -44,6 +44,17 @@ public class SqlInjectionLesson2 implements AssignmentEndpoint {
   }
 
   protected AttackResult injectableQuery(String query) {
+    /*
+     * This is a classic SQL injection vulnerability. The user-provided query is executed without any validation.
+     * To fix this, you should use a parameterized query.
+     *
+     * For example:
+     *
+     * PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE name = ?");
+     * statement.setString(1, query);
+     * ResultSet results = statement.executeQuery();
+     *
+     */
     try (var connection = dataSource.getConnection()) {
       Statement statement = connection.createStatement(TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY);
       ResultSet results = statement.executeQuery(query);
