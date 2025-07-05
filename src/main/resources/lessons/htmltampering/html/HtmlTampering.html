@@ -17,11 +17,11 @@
             <script>
                 var regex = /^2999.99$/;
                 var price = 2999.99;
-                document.getElementById("total").innerHTML = '$' + price.toString();
+                document.getElementById("total").textContent = '$' + price.toString();
                 var total = price * document.task.QTY.value;
-                document.getElementById("total").innerHTML = '$' + total;
-                document.getElementById("subtotal").innerHTML = '$' + total;
-                document.getElementById("totalAmount").innerHTML = '$' + total;
+                document.getElementById("total").textContent = '$' + total;
+                document.getElementById("subtotal").textContent = '$' + total;
+                document.getElementById("totalAmount").textContent = '$' + total;
 
                 $('#remove').click(function () {
                     document.getElementById("QTY").value = 1;
@@ -36,7 +36,7 @@
                     price = $('#price_hidden').val();
                     if (!regex.test(price.toString())) {
                         alert('Data tampering is disallowed');
-                        document.getElementById("price").innerHTML = 2999.99;
+                        document.getElementById("price").textContent = 2999.99;
                         update();
                     }
                     var total = price * document.task.QTY.value;

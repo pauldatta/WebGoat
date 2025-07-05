@@ -24,7 +24,7 @@ public class CrossSiteScriptingLesson4 implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(@RequestParam String editor2) {
 
-    String editor = editor2.replaceAll("<[^>]*>", "");
+    String editor = com.google.re2j.Pattern.compile("<[^>]*>").matcher(editor2).replaceAll("");
 
     if ((Pattern.compile("Policy.getInstance(\"antisamy-slashdot.xml\"").matcher(editor).find()
             || Pattern.compile(".scan(newComment, \"antisamy-slashdot.xml\"").matcher(editor).find()
